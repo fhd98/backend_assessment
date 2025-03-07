@@ -1,0 +1,15 @@
+# Ignore dependencies
+todolist-service/node_modules/
+notification-service/node_modules/
+
+# Ignore environment variables
+# todolist-service/.env
+# notification-service/.env
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
