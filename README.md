@@ -31,14 +31,14 @@ npm run dev
 TodoList Service
 
 POST /tasks - Create a new task
+```localhost:3001/tasks```
 
 PUT /tasks/:id - Update an existing task
-
 DELETE /tasks/:id - Delete a task
-
 Notification Service
 
 GET /notifications?page=<number> - Get paginated notifications (10 per page by default)
+```localhost:3002/notifications```
 
 ## Additional Notes
 
