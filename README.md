@@ -43,7 +43,5 @@ GET /notifications?page=<number> - Get paginated notifications (10 per page by d
 ## Additional Notes
 
 A Postman collection for all 4 APIs is included.
-
 The .env file contains the NeonDB connection details and is not included in .gitignore for convenience.
-
 PostgreSQL is used for database operations, with no in-memory storage.
