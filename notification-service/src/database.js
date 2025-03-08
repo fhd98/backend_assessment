@@ -23,16 +23,17 @@ async function updateNotification(taskId, task) {
       .updateTable('notifications')
       .set({
         task_data: JSON.stringify(task),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        event_type: "TASK_UPDATED"
       })
-      .where('task_id', '=', taskId)
+      .where('id', '=', taskId)
       .execute();
   }
 
   async function deleteNotification(taskId) {
     await db
       .deleteFrom('notifications')
-      .where('task_id', '=', taskId)
+      .where('id', '=', taskId)
       .execute();
   }
   
