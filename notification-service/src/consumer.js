@@ -10,17 +10,29 @@ const kafka = new Kafka({
 const consumer = kafka.consumer({ groupId: "notifications-group" });
 
 const startConsumer = async () => {
-  await consumer.connect();
-  await consumer.subscribe({ topic: "task-events", fromBeginning: true });
+  try {
+    await consumer.connect();
+    await consumer.subscribe({ topic: "task-events", fromBeginning: true });
 
-  await consumer.run({
-    eachMessage: async ({ message }) => {
-      const eventType = message.key.toString();
-      const task = JSON.parse(message.value.toString());
-      await insertNotification(eventType, task);
-      console.log(`New notification: ${eventType} - ${task.id}`);
-    },
-  });
+    console.log("🚀 Kafka Consumer started and listening for events...");
+
+    await consumer.run({
+      eachMessage: async ({ message }) => {
+        try {
+          const eventType = message.key ? message.key.toString() : "unknown";
+          const task = JSON.parse(message.value.toString());
+
+          await insertNotification(eventType, task);
+          console.log(`✅ New notification: ${eventType} - Task ID: ${task.id}`);
+        } catch (error) {
+          console.error("❌ Error processing message:", error);
+        }
+      },
+    });
+  } catch (error) {
+    console.error("❌ Error starting Kafka consumer:", error);
+  }
 };
 
-startConsumer().catch(console.error);
+// ✅ Export function so it can be called in `app.js`
+module.exports = startConsumer;
