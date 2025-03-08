@@ -1,5 +1,5 @@
 const { Kafka } = require("kafkajs");
-const { insertNotification } = require("./database");
+const { insertNotification, updateNotification, deleteNotification } = require("./database");
 require("dotenv").config();
 
 const kafka = new Kafka({
@@ -10,29 +10,37 @@ const kafka = new Kafka({
 const consumer = kafka.consumer({ groupId: "notifications-group" });
 
 const startConsumer = async () => {
-  try {
-    await consumer.connect();
-    await consumer.subscribe({ topic: "task-events", fromBeginning: true });
+  await consumer.connect();
+  await consumer.subscribe({ topic: "task-events", fromBeginning: true });
 
-    console.log("🚀 Kafka Consumer started and listening for events...");
+  await consumer.run({
+    eachMessage: async ({ message }) => {
+      const eventType = message.key.toString();
+      const task = JSON.parse(message.value.toString());
 
-    await consumer.run({
-      eachMessage: async ({ message }) => {
-        try {
-          const eventType = message.key ? message.key.toString() : "unknown";
-          const task = JSON.parse(message.value.toString());
-
+      switch (eventType) {
+        case "TASK_CREATED":
           await insertNotification(eventType, task);
-          console.log(`✅ New notification: ${eventType} - Task ID: ${task.id}`);
-        } catch (error) {
-          console.error("❌ Error processing message:", error);
-        }
-      },
-    });
-  } catch (error) {
-    console.error("❌ Error starting Kafka consumer:", error);
-  }
+          console.log(`Task created: ${task.id}`);
+          break;
+
+        case "TASK_UPDATED":
+          await updateNotification(task.id, task);
+          console.log(`Task updated: ${task.id}`);
+          break;
+
+        case "TASK_DELETED":
+          await deleteNotification(task.id);
+          console.log(`Task deleted: ${task.id}`);
+          break;
+
+        default:
+          console.warn(`Unknown event type: ${eventType}`);
+      }
+    },
+  });
 };
 
-// ✅ Export function so it can be called in `app.js`
-module.exports = startConsumer;
+startConsumer().catch(console.error);
+module.exports = { startConsumer };
+
