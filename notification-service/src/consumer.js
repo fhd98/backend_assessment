@@ -16,7 +16,8 @@ const startConsumer = async () => {
   await consumer.run({
     eachMessage: async ({ message }) => {
       const eventType = message.key.toString();
-      const task = JSON.parse(message.value.toString());
+      const task = JSON.parse(message.value.toString());      
+console.log('taskkk',task);
 
       switch (eventType) {
         case "TASK_CREATED":
@@ -24,14 +25,14 @@ const startConsumer = async () => {
           console.log(`Task created: ${task.id}`);
           break;
 
-        case "TASK_UPDATED":
-          await updateNotification(task.id, task);
-          console.log(`Task updated: ${task.id}`);
-          break;
+        case "TASK_UPDATED":            
+            await updateNotification(parseInt(task.key), task.value);
+            console.log(`Task updated: ${task.key.toString()}`);
+            break;
 
         case "TASK_DELETED":
-          await deleteNotification(task.id);
-          console.log(`Task deleted: ${task.id}`);
+          await deleteNotification(parseInt(task));
+          console.log(`Task deleted: ${task}`);
           break;
 
         default:
